@@ -1,4 +1,5 @@
 """
+API to access the image10k dataset
 @author: Francois Nadeau, Pierre Bellec
 """
 import os

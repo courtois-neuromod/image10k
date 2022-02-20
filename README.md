@@ -9,26 +9,23 @@ The main API to access the dataset can be found in `api/image10k.py`.
 
 ```Python
 # Import the module
-from image10k import Image10k
+from image10k import get_data
 
 # Navigate the database
-data = Image10k()
-human = data.loc['human']['data']
+df = get_data()
+human = df[df["tag"].str.contains("human")]
 
-# shows image names (synsets)
-human.index
+# shows image names
+human["name"]
 
 # number of images for a concept
-human.n_pic
+len(human.index)
 
-# path to each concept folder
-bar = human.fpath
-# synsets of every superior category
-# a synset crosses while ascending the database
-human.tags
+# tags of every superior category
+human["tag"]
 
-# flatten one-hot encoding of category membership
-human.vec
+# full path names of files
+human["file"]
 ```
 
 ## Other content
