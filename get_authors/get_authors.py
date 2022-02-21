@@ -54,6 +54,9 @@ if __name__ == "__main__":
         "filename", type=str, nargs="+", help="the xls file name to be processed"
     )
     parser.add_argument(
+        "output", type=str, nargs="+", help="the xls file name to save results"
+    )
+    parser.add_argument(
         "-n",
         "--num",
         metavar="num",
@@ -79,4 +82,4 @@ if __name__ == "__main__":
             df.loc[row, "source_url"] = metadata["photo"]["urls"]["url"][0]["_content"]
         except:
             print(f"an error occured in row {row}")
-    df.to_excel("inanimateDF_full.xlsx")
+    df.to_excel(args.output[0])
