@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 with open("licenses.json", "r") as f:
     licenses_json = json.load(f)
-accept_license = [1, 2, 4, 5, 9, 10]
+accept_license = [1, 2, 3, 4, 5, 6, 9, 10]
 
 
 def _init_df(filename):
@@ -71,15 +71,16 @@ if __name__ == "__main__":
     index = _get_index(df, args.num)
     for row in tqdm(index):
         id = _get_id(df, row)
-        metadata = _rest_query(args.key[0], args.secret[0], id)
         try:
+            metadata = _rest_query(args.key[0], args.secret[0], id)
             df.loc[row, "metadata"] = str(metadata)
+            df.loc[row, "source_url"] = metadata["photo"]["urls"]["url"][0]["_content"]
             df.loc[row, "license_code"] = int(metadata["photo"]["license"])
             if df.loc[row, "license_code"] in accept_license:
                 df.loc[row, "include"] = True
             df.loc[row, "license"] = licenses_json[metadata["photo"]["license"]]
             df.loc[row, "author"] = _get_author(metadata)
-            df.loc[row, "source_url"] = metadata["photo"]["urls"]["url"][0]["_content"]
+
         except:
             print(f"an error occured in row {row}")
     df.to_excel(args.output[0])
