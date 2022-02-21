@@ -32,4 +32,5 @@ human["file"]
  * `image10k` is a symbolic link to the `image10k` dataset. Update this link to your local copy. This will eventually be replaced by a datalad submodule.
  * `get_authors` scripts and data used to collect the meta-data of all pictures, including author names and licenses.
  * `zooniverse` scripts and data used in the upload on the zooniverse platform.
+ * `stimuli_processing` scripts which were used to prepare the images, including resampling. 
  * `api` python tools to access the data.
