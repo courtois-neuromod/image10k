@@ -57,10 +57,13 @@ def _get_author(data):
     key = list(data["query"]["pages"].keys())[0]
     author_html = data["query"]["pages"][key]["imageinfo"][0]["extmetadata"]["Artist"]["value"]
     soup = BeautifulSoup(author_html, 'html.parser')
-    author_url = soup.a.get('href')
-    author_url.replace('//commons.wikimedia.org', 'https://commons.wikimedia.org')
+    try:
+        author_url = f" ({soup.a.get('href')})"
+        author_url = author_url.replace('//commons.wikimedia.org', 'https://commons.wikimedia.org')
+    except:
+        author_url = ""
     author_name = soup.a.get_text()
-    return f"{author_name} ({author_url})"
+    return f"{author_name}"
 
 
 if __name__ == "__main__":
@@ -98,6 +101,7 @@ if __name__ == "__main__":
             df.loc[row, "author"] = _get_author(metadata)
 
         except:
+            df.loc[row, "include"] = False
             print(f"an error occured in row {row}")
     with open('license_commons.json', 'w') as f: json.dump(all_license, f, indent=3)
     df.to_excel(args.output[0])
