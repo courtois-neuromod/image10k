@@ -74,7 +74,13 @@ if __name__ == "__main__":
         "filename", type=str, nargs="+", help="the xls file name to be processed"
     )
     parser.add_argument(
+        "license", type=str, nargs="+", help="a json file describing licenses", default=None
+    )
+    parser.add_argument(
         "output", type=str, nargs="+", help="the xls file name to save results"
+    )
+    parser.add_argument(
+        "license_output", type=str, nargs="+", help="the json file name to save updated licenses"
     )
     parser.add_argument(
         "-n",
@@ -89,7 +95,10 @@ if __name__ == "__main__":
 
     df = _init_df(args.filename[0])
     index = _get_index(df, args.num)
-    all_license = {}
+    if args.license[0]==None:
+        all_license = {}
+    else:
+        with open(args.license[0], 'r') as f: all_license = json.load(f)
     for row in tqdm(index):
         id = _get_id(df, row)
         metadata = _rest_query(id)
@@ -103,5 +112,5 @@ if __name__ == "__main__":
         except:
             df.loc[row, "include"] = False
             print(f"an error occured in row {row}")
-    with open('license_commons.json', 'w') as f: json.dump(all_license, f, indent=3)
+    with open(args.license_output[0], 'w') as f: json.dump(all_license, f, indent=3)
     df.to_excel(args.output[0])
