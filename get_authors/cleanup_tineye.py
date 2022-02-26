@@ -37,9 +37,15 @@ def _get_source(backlink):
         source_url, image_id = _parse_backlink(backlink, 'wikimedia.org')
         image_id = image_id.split('px-')[-1]
         source_url = f'https://commons.wikimedia.org/wiki/File:{image_id}'
-    elif (not pd.isna(backlink)) and 'unsplash' in backlink:
-        source_url, image_id = _parse_backlink(backlink, 'unsplash')
-
+    elif (not pd.isna(backlink)) and 'unsplash.com/photos' in backlink:
+        source_url, image_id = _parse_backlink(backlink, 'unsplash.com/photos')
+        source_url = source_url.split('?')[0]
+    elif (not pd.isna(backlink)) and 'pexels.com/photo' in backlink:
+        source_url, image_id = _parse_backlink(backlink, 'pexels.com/photo')
+        source_url = source_url.split('?')[0]
+    elif (not pd.isna(backlink)) and 'pixabay.com/photo' in backlink:
+        source_url, image_id = _parse_backlink(backlink, 'pixabay.com/photo')
+        source_url = source_url.split('?')[0]
     return image_id, source_url
 
 def _get_website(backlink, source):

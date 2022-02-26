@@ -11,7 +11,10 @@ def _init_df(filename):
 
 
 def _get_id(df, row):
-    id = df["online_image_id"][row] + df["extension"][row]
+    if not pd.isna(df["extension"][row]):
+        id = df["online_image_id"][row] + df["extension"][row]
+    else:
+        id = df["online_image_id"][row]
     return id
 
 
