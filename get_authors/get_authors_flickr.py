@@ -11,12 +11,15 @@ accept_license = [1, 2, 3, 4, 5, 6, 9, 10]
 
 def _init_df(filename):
     df = pd.read_excel(filename)
-    df.insert(len(df.columns), "metadata", "None")
-    df.insert(len(df.columns), "include", False)
-    df.insert(len(df.columns), "license_code", "None")
-    df.insert(len(df.columns), "license", "None")
-    df.insert(len(df.columns), "author", "None")
-    df.insert(len(df.columns), "source_url", "None")
+    try:
+        df.insert(len(df.columns), "metadata", "None")
+        df.insert(len(df.columns), "include", False)
+        df.insert(len(df.columns), "license_code", "None")
+        df.insert(len(df.columns), "license", "None")
+        df.insert(len(df.columns), "author", "None")
+        df.insert(len(df.columns), "source_url", "None")
+    except:
+        print('Over-writing existing meta-data')
     return df
 
 
