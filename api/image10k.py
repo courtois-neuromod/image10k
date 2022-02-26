@@ -12,16 +12,9 @@ import pandas as pd
 from typing import Sequence
 
 
-def _get_root_data():
-    library_path, basename = os.path.split(__file__)
-    root_repo, library_name = os.path.split(library_path)
-    root_data = os.path.join(root_repo, "image10k")
-    return root_data
-
-
 def _load_image():
     """Lists the full path of all '.jpeg' files in image10k."""
-    root_data = _get_root_data()
+    root_data = get_path_image10k()
     list_img = []
     for allimages in os.walk(root_data):
         for image in allimages[2]:
@@ -46,10 +39,18 @@ def _get_tag(list_img, root_data):
     return list_tag
 
 
+def get_path_image10k():
+    """Returns the path to the image10k dataset"""
+    library_path, basename = os.path.split(__file__)
+    root_repo, library_name = os.path.split(library_path)
+    root_data = os.path.join(root_repo, "image10k")
+    return root_data
+
+
 def get_data():
     """Returns a data frame with the image name and labels."""
     list_img = _load_image()
-    root_data = _get_root_data()
+    root_data = get_path_image10k()
     list_tag = _get_tag(list_img, root_data)
     df = pd.DataFrame(columns=["name", "file", "tag"])
     for num, img in enumerate(list_img):
