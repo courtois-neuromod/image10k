@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 from api import get_data, get_path_image10k
+import json
 
 # Load image10k and zooniverse data frames
 path_image10k = get_path_image10k()
@@ -47,6 +48,7 @@ for item in df_zooniverse['metadata']:
     mask = [file.split('.')[0] == item.split('.')[0] for item in df_metadata['name']]
     if not any(mask):
         discrepancies['zoo2meta'].append(file)
+
 print(sorted(discrepancies['zoo2meta']))
 print(f"{len(discrepancies['zoo2meta'])} discrepancies found")
 

@@ -43,7 +43,7 @@ def get_path_image10k():
     """Returns the path to the image10k dataset"""
     library_path, basename = os.path.split(__file__)
     root_repo, library_name = os.path.split(library_path)
-    root_data = os.path.join(root_repo, "image10k")
+    root_data = os.path.join(root_repo, "image10k_dataset")
     return root_data
 
 
