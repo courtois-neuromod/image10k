@@ -5,6 +5,7 @@ import numpy as np
 from base64 import b64encode
 from tqdm import tqdm
 import pandas as pd
+import json
 from string import Template
 from datetime import datetime
 from api.image10k import get_data, get_path_image10k
@@ -12,6 +13,24 @@ from api.image10k import get_data, get_path_image10k
 # Manually set the number of reports to generate
 # Use 0 to generate all possible reports
 n_report = -1
+
+def _get_index_zooniverse(df):
+    index_zooniverse = []
+    for item in df['metadata']:
+         item_json = json.loads(item)
+         if "Filename" in item_json.keys():
+             file = item_json["Filename"]
+         elif "#name" in item_json.keys():
+             file = item_json["#name"]
+         elif "image_name_1" in item_json.keys():
+             file = item_json["image_name_1"]
+         else:
+             print(item_json)
+             raise ValueError
+         file = file.replace("-compressed", "")
+         file = file.split('.')[0]
+         index_zooniverse.append(file)
+    return index_zooniverse
 
 
 def _generate_screenshot(url, image):
@@ -66,6 +85,8 @@ path_image10k = get_path_image10k()
 path_report = os.path.join(os.path.split(path_image10k)[0], "image10k_report")
 path_template = os.path.join(os.path.split(path_image10k)[0], "report")
 df = pd.read_csv(os.path.join(path_image10k, "image10k.tsv"), sep="\t")
+df_zooniverse = pd.read_csv(os.path.join(os.path.split(path_image10k)[0], 'zooniverse', 'you-see-it-you-name-it-subjects.csv'))
+index_zooniverse = _get_index_zooniverse(df_zooniverse)
 
 # Identify unique categories
 list_category = _get_category(df, n_report)
@@ -80,7 +101,8 @@ for category in tqdm(list_category):
     )
     report_image = []
     for row in df_category.itertuples():
-        if getattr(row, "source_url") != "none":
+        file = getattr(row, "name").split('.')[0]
+        if (file in index_zooniverse) and (getattr(row, "source_url") != "none") and (getattr(row, "license_code") not in ["F0", "none"]):
 
             # Convert image file in base64
             file_name = os.path.join(
