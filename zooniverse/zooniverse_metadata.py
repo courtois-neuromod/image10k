@@ -32,7 +32,7 @@ index_zooniverse = _get_index_zooniverse(df_zooniverse)
 df_zooniverse.insert(len(df_zooniverse.columns), "author", "none")
 df_zooniverse.insert(len(df_zooniverse.columns), "license", "none")
 df_zooniverse.insert(len(df_zooniverse.columns), "include", "False")
-for row, name in tqdm(enumerate(index_zooniverse[0:100])):
+for row, name in tqdm(enumerate(index_zooniverse)):
     author, license, include = _get_metadata(df, name, dict_license)
     df_zooniverse.loc[row, 'author'] = author
     df_zooniverse.loc[row, 'license'] = license
