@@ -43,8 +43,14 @@ for row in df_metadata.index:
     df_metadata.loc[row, 'name'] = df_metadata.loc[row, 'name'].replace('png', 'jpg')
     df_metadata.loc[row, 'name'] = df_metadata.loc[row, 'name'].replace('JPG', 'jpg')
 
+## Tag usable images
+df_metadata.insert(len(df_metadata.columns), "include", "none")
+for row in df_metadata.index:
+    license = df_metadata.loc[row, 'license_code']
+    df_metadata.loc[row, 'include'] = not (license == 'none') and not (license=="F0")
+
 ## Merge tag information from the dataset
-df_metadata.insert(len(df_metadata.columns), "tag", "None")
+df_metadata.insert(len(df_metadata.columns), "tag", "none")
 for row_m, file in enumerate(df_metadata['name']):
     for row_i, item in enumerate(df_image10k['name']):
         if file == item:

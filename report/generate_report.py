@@ -80,62 +80,63 @@ def _get_html_template(template_file):
         return Template(f.read().decode("utf-8"))
 
 
-# Set up path and load dataset
-path_image10k = get_path_image10k()
-path_report = os.path.join(os.path.split(path_image10k)[0], "image10k_report")
-path_template = os.path.join(os.path.split(path_image10k)[0], "report")
-df = pd.read_csv(os.path.join(path_image10k, "image10k.tsv"), sep="\t")
-df_zooniverse = pd.read_csv(os.path.join(os.path.split(path_image10k)[0], 'zooniverse', 'you-see-it-you-name-it-subjects.csv'))
-index_zooniverse = _get_index_zooniverse(df_zooniverse)
+if __name__ == "__main__":
+    # Set up path and load dataset
+    path_image10k = get_path_image10k()
+    path_report = os.path.join(os.path.split(path_image10k)[0], "image10k_report")
+    path_template = os.path.join(os.path.split(path_image10k)[0], "report")
+    df = pd.read_csv(os.path.join(path_image10k, "image10k.tsv"), sep="\t")
+    df_zooniverse = pd.read_csv(os.path.join(os.path.split(path_image10k)[0], 'zooniverse', 'you-see-it-you-name-it-subjects.csv'))
+    index_zooniverse = _get_index_zooniverse(df_zooniverse)
 
-# Identify unique categories
-list_category = _get_category(df, n_report)
+    # Identify unique categories
+    list_category = _get_category(df, n_report)
 
-# loop over reports
-for category in tqdm(list_category):
-    df_category = df[[label == category.replace("-", ", ") for label in df["tag"]]]
+    # loop over reports
+    for category in tqdm(list_category):
+        df_category = df[[label == category.replace("-", ", ") for label in df["tag"]]]
 
-    # Build div element containing the images
-    template_image = _get_html_template(
-        os.path.join(path_template, "template_image.html")
-    )
-    report_image = []
-    for row in df_category.itertuples():
-        file = getattr(row, "name").split('.')[0]
-        if (file in index_zooniverse) and (getattr(row, "source_url") != "none") and (getattr(row, "license_code") not in ["F0", "none"]):
+        # Build div element containing the images
+        template_image = _get_html_template(
+            os.path.join(path_template, "template_image.html")
+        )
+        report_image = []
+        for row in df_category.itertuples():
+            file = getattr(row, "name").split('.')[0]
+            if (file in index_zooniverse) and (getattr(row, "source_url") != "none") and (getattr(row, "license_code") not in ["F0", "none"]):
 
-            # Convert image file in base64
-            file_name = os.path.join(
-                path_image10k, getattr(row, "tag").replace(', ', os.sep), getattr(row, "name")
-            )
-            with open(file_name, 'rb') as f: img_base64 = _bytesIO_to_base64(f)
+                # Convert image file in base64
+                file_name = os.path.join(
+                    path_image10k, getattr(row, "tag").replace(', ', os.sep), getattr(row, "name")
+                )
+                with open(file_name, 'rb') as f: img_base64 = _bytesIO_to_base64(f)
 
-            # Screenshot website and convert in base64
-            file_tmp = os.path.join(path_report, 'image_tmp.bin')
-            status = _generate_screenshot(getattr(row, "source_url"), file_tmp)
-            #with open(file_tmp, 'wb') as f:
-            #    _generate_screenshot(getattr(row, "source_url"), f)
-            if status == 'success':
-                with open(file_tmp, 'rb') as f: img_screenshot = _bytesIO_to_base64(f)
-            else:
-                img_screenshot='crash'
+                # Screenshot website and convert in base64
+                file_tmp = os.path.join(path_report, 'image_tmp.bin')
+                status = _generate_screenshot(getattr(row, "source_url"), file_tmp)
+                #with open(file_tmp, 'wb') as f:
+                #    _generate_screenshot(getattr(row, "source_url"), f)
+                if status == 'success':
+                    with open(file_tmp, 'rb') as f: img_screenshot = _bytesIO_to_base64(f)
+                else:
+                    img_screenshot='crash'
 
-            # Update template
-            report_image.append(
-                template_image.safe_substitute(
-                    LABEL=getattr(row, "name"),
-                    AUTHOR=getattr(row, "author"),
-                    URL=getattr(row, "source_url"),
-                    IMAGE=img_base64,
-                    SCREENSHOT=img_screenshot
+                # Update template
+                report_image.append(
+                    template_image.safe_substitute(
+                        LABEL=getattr(row, "name"),
+                        AUTHOR=getattr(row, "author"),
+                        URL=getattr(row, "source_url"),
+                        IMAGE=img_base64,
+                        SCREENSHOT=img_screenshot
+                    )
+                )
+
+        # Assemble the complete report with html header
+        report = _get_html_template(os.path.join(path_template, "template_report.html"))
+        with open(os.path.join(path_report, f"report_{category}.html"), "w") as f:
+            f.write(
+                report.safe_substitute(
+                    TITLE=category, DATE=datetime.now(), IMAGES="\n".join(report_image)
                 )
             )
-
-    # Assemble the complete report with html header
-    report = _get_html_template(os.path.join(path_template, "template_report.html"))
-    with open(os.path.join(path_report, f"report_{category}.html"), "w") as f:
-        f.write(
-            report.safe_substitute(
-                TITLE=category, DATE=datetime.now(), IMAGES="\n".join(report_image)
-            )
-        )
